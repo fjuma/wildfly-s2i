@@ -90,15 +90,15 @@ echo $(oc get route elytron-oidc-client-app --template='{{ .spec.host }}')
   * Create a Client named `simple-webapp` with a `openid-connect` Client Protocol and the Root URL set to  `https://<elytron-oidc-client-app route>`
     * once the client is created, you also need to add `http://<elytron-oidc-client-app route>/*` to the list of `Valid Redirect URIs`.
 
-4. Finally update the `helm.yaml` file to add the `SERVER_ARGS` environment variable:
+4. Finally update the `helm.yaml` file to add the `OIDC_PROVIDER_URL` environment variable:
 
 ```yaml
 build:
   ...
 deploy:
   env:
-    - name: SERVER_ARGS
-      value: -Dorg.wildfly.s2i.example.oidc.provider-url=<SSO WildFly Realm>
+    - name: OIDC_PROVIDER_URL
+      value: <SSO WildFly Realm>
 ```
 
 Replace `<SSO WildFly Realm>` with the URL you can get from:
@@ -106,6 +106,8 @@ Replace `<SSO WildFly Realm>` with the URL you can get from:
 ```
 echo https://$(oc get route sso --template='{{ .spec.host }}')/auth/realms/WildFly
 ```
+
+When WildFly is started, this `OIDC_PROVIDER_URL` environment variable is used to set the `provider-url` field in the `oidc.json` deployment's file.
 
 5. Upgrade the application with Helm:
 

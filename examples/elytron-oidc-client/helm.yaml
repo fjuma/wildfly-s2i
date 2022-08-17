@@ -1,9 +1,10 @@
 build:
-  uri: https://github.com/wildfly/wildfly-s2i
+  uri: https://github.com/jmesnil/wildfly-s2i
   contextDir: examples/elytron-oidc-client
+  ref: elytron-oidc-client
 deploy:
   env:
-    # once RH SSO is configured, specify the WildFly Realm URL here
-    #- name: SERVER_ARGS
-    #  value: -Dorg.wildfly.s2i.example.oidc.provider-url=https://<host of the SSO provider>/auths/realms/WildFly
+    # this env var is used to specify the provider-url field in oidc.json
+    # - name: OIDC_PROVIDER_URL
+    #   value: <SSO WildFly Realm>
     
