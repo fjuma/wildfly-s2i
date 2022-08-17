@@ -67,10 +67,17 @@ when instantiating the template.
 To retrieve the SSO admin user name and password that will be needed to log into the SSO admin console, 
 access the SSO deployment config and look for `SSO_ADMIN_USERNAME` and `SSO_ADMIN_PASSWORD` env variable values.
 
-2. Deploy the example application using WildFly Helm charts
+2. Deploy the application with the Helm Chart for WildFly using the `helm.yaml` file to configure the application:
 
 ```
 helm install elytron-oidc-client-app -f helm.yaml wildfly/wildfly
+```
+
+You can now query the route of the application (refered later with 
+`<elytron-oidc-client-app route>`) with:
+
+```
+echo $(oc get route elytron-oidc-client-app --template='{{ .spec.host }}')
 ```
 
 3. Create the SSO realm, user, role and client
@@ -80,15 +87,35 @@ helm install elytron-oidc-client-app -f helm.yaml wildfly/wildfly
   * Create a Role named `Users`
   * Create a User named `demo`, password `demo`
   * Assign the role `Users` to the user `demo`
-  * Create a Client named `simple-webapp` with a Valid Redirect uri of URL: `http://<elytron-oidc-client-app route>/simple-webapp/*`
+  * Create a Client named `simple-webapp` with a `openid-connect` Client Protocol and the Root URL set to  `https://<elytron-oidc-client-app route>`
+    * once the client is created, you also need to add `http://<elytron-oidc-client-app route>/*` to the list of `Valid Redirect URIs`.
 
-4. Finally add the env variable to the `elytron-oidc-client-app` deployment to convey the system property to the server
+4. Finally update the `helm.yaml` file to add the `SERVER_ARGS` environment variable:
 
-`oc set env deployment/elytron-oidc-client-app SERVER_ARGS=-Dorg.wildfly.s2i.example.oidc.provider-url=https://<SSO route>/auth/realms/WildFly`
+```yaml
+build:
+  ...
+deploy:
+  env:
+    - name: SERVER_ARGS
+      value: -Dorg.wildfly.s2i.example.oidc.provider-url=<SSO WildFly Realm>
+```
 
-5. Access the application: `https://<elytron-oidc-client-app route>/simple-webapp`
+Replace `<SSO WildFly Realm>` with the URL you can get from:
 
-6. Access the secured servlet.
+```
+echo https://$(oc get route sso --template='{{ .spec.host }}')/auth/realms/WildFly
+```
+
+5. Upgrade the application with Helm:
+
+```
+helm upgrade elytron-oidc-client-app -f helm.yaml wildfly/wildfly
+```
+
+5. Access the application: `https://<elytron-oidc-client-app route>/`
+
+6. Access the secured servlet from this page
 
 7. Log-in using the `demo` user, `demo` password (that you created in the initial steps)
 
