@@ -1,10 +1,10 @@
 build:
-  uri: https://github.com/jmesnil/wildfly-s2i
+  uri: https://github.com/fjuma/wildfly-s2i
   contextDir: examples/elytron-oidc-client
   ref: elytron-oidc-client
 deploy:
   env:
     # this env var is used to specify the provider-url field in oidc.json
-    # - name: OIDC_PROVIDER_URL
-    #   value: <SSO WildFly Realm>
+    - name: OIDC_PROVIDER_URL
+      value: https://sso-fjuma1-dev.apps.sandbox-m2.ll9k.p1.openshiftapps.com/auth/realms/WildFly
     
